@@ -1,0 +1,26 @@
+Sub Doc_Sheet()
+Dim i As Long
+Dim n_SHEETS As Long
+
+Rem: count the number of sheets in the activeworkbook
+n_SHEETS = ActiveWorkbook.Sheets.Count
+
+
+Rem: check to see if there is ALREADY a Doc_Sheet
+For i = 1 To n_SHEETS
+If Sheets(i).Name = "Doc_Sheet" Then
+Sheets("Doc_Sheet").Select: Exit Sub
+End If
+Next i
+
+ActiveWorkbook.Sheets.Add After:=Sheets(n_SHEETS)
+n_SHEETS = ActiveWorkbook.Sheets.Count
+
+Sheets(n_SHEETS).Name = "Doc_Sheet"
+Sheets("Doc_Sheet").Select
+
+ActiveWindow.DisplayGridlines = False
+
+
+
+End Sub
