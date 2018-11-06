@@ -1,33 +1,79 @@
-Sub Doc_Sheet()
-Dim i As Long
-Dim n_SHEETS As Long
+Option Explicit
 
-Rem: count the number of sheets in the activeworkbook
-n_SHEETS = ActiveWorkbook.Sheets.Count
+'https://github.com/exceldini/Excel-VBA/blob/master/Doc_Sheet%20Add
 
+Private Sheet_Name As String
+Private wb As Workbook
 
-Rem: check to see if there is ALREADY a Doc_Sheet
-For i = 1 To n_SHEETS
-If Sheets(i).Name = "Doc_Sheet" Then
-Sheets("Doc_Sheet").Select: Exit Sub
-End If
-Next i
+' ===================
+Public Sub Doc_Sheet_InExSu()
 
-ActiveWorkbook.Sheets.Add After:=Sheets(n_SHEETS)
-n_SHEETS = ActiveWorkbook.Sheets.Count
-
-Sheets(n_SHEETS).Name = "Doc_Sheet"
-Sheets("Doc_Sheet").Select
-
-ActiveWindow.DisplayGridlines = False
-Selection.Range("a1").Value = "This is a Documentation Sheet. Please note everything regarding this workbook here."
-
-With Range("a1").Font
-    .Bold = True
-    .Size = 16
-    .Underline = True
-    .Italic = True
-    
-End With
+    Sheet_MakeUp _
+            Sheet_Add( _
+            Sheet_Check(wb, _
+            Variables_Declare))
 
 End Sub
+
+Public Function Variables_Declare(Optional ByVal msg As Variant) _
+       As Variant
+
+    Sheet_Name = "Doc_Sheet"
+
+    Set wb = ActiveWorkbook
+
+End Function
+
+Public Function Sheet_Check(ByRef wb As Workbook, Optional ByVal msg As Variant) _
+       As Worksheet
+
+Dim ws As Worksheet
+
+    For Each ws In wb.Worksheets
+
+        If ws.Name = Sheet_Name Then
+
+            Set Sheet_Check = ws
+
+            Exit For
+
+        End If
+    Next
+End Function
+
+Public Function Sheet_Add(ByRef ws As Worksheet) _
+       As Worksheet
+
+    If ws Is Nothing Then
+
+        With wb
+
+            .Sheets.Add after:=.Sheets(.Sheets.Count)
+
+        End With
+
+        Set ws = ActiveSheet
+
+        ws.Name = Sheet_Name
+    
+    End If
+
+    Set Sheet_Add = ws
+    
+End Function
+
+Public Function Sheet_MakeUp(ByRef ws As Worksheet) As Variant
+    
+    ActiveWindow.DisplayGridlines = False
+
+    ws.Range("a1").Value = "This is a Documentation Sheet. Please note everything regarding this workbook here."
+
+    With ws.Range("a1").Font
+        
+        .Bold = True
+        .Size = 16
+        .Underline = True
+        .Italic = True
+
+    End With
+End Function
