@@ -1,0 +1,76 @@
+Public sr As Long
+Public er As Long
+Public C As Long
+Public Dc As Long
+Dim rng As range
+Dim Drng As range
+
+Sub create_chart()
+Application.ScreenUpdating = False
+
+Dim sh As Worksheet
+Set sh = ActiveSheet
+
+Dim Tr As Long
+
+Dim i As Long
+
+If MsgBox("Place cusor in column you'd like to chart", vbInformation + vbOKCancel) = vbCancel Then
+Exit Sub
+End If
+Dc = 1
+Rem This Block of code will determine the first/last numeric rows of the column to assigned to data range
+
+Tr = Application.WorksheetFunction.CountA(ActiveCell.EntireColumn)
+C = ActiveCell.Column
+'find non-numeric cells
+ For i = 1 To Tr
+ If Not IsNumeric(Cells(i, C)) Then
+   Else
+ r = i
+ Exit For
+End If
+Next i
+sr = i
+For i = Tr To 1 Step -1
+ If Not IsNumeric(Cells(i, C)) Then
+   Else
+ er = i
+ Exit For
+End If
+Next i
+
+Set rng = range(Cells(sr, C), Cells(er, C))
+Set Drng = range(Cells(sr, Dc), Cells(er, Dc))
+'Union(rng, Drng).Activate
+
+On Error Resume Next
+sh.Shapes(1).Delete
+
+With sh.Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(rng, Drng)
+.HasTitle = True
+End With
+
+Call Chart.Show
+
+
+End Sub
+
+Sub chartEdit(sr As Long, er As Long, C As Long, Dc As Long)
+
+Application.ScreenUpdating = False
+
+Set rng = range(Cells(sr, C), Cells(er, C))
+Set Drng = range(Cells(sr, Dc), Cells(er, Dc))
+
+On Error Resume Next
+sh.Shapes(1).Delete
+
+
+With ActiveSheet.Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(rng, Drng)
+.HasTitle = True
+End With
+
+End Sub
