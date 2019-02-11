@@ -1,0 +1,333 @@
+Public Lastrw1 As Integer
+Public Lastrw2 As Integer
+Public sRW As Integer
+Dim colcalc1 As Integer
+Dim colcalc2 As Integer
+Public LAST As Integer
+
+Dim Rwind As Integer
+
+Sub Columns_ID()
+ThisWorkbook.Worksheets("MarketCaps").Activate
+Dim Col1 As Variant
+Dim Col2 As Variant
+
+Set Col1 = Application.InputBox("Select any cell in a data column, Beta will be relative to this", "DATA SELECTION 1 OF 2", Type:=8)
+colcalc1 = Col1.Column
+
+Set Col2 = Application.InputBox("Select any cell in a data column", _
+"DATA SELECTION 2 OF 2", Type:=8)
+colcalc2 = Col2.Column
+
+If colcalc2 = 1 Or colcalc1 = 1 Then
+MsgBox "Cannot use dates as data range"
+Exit Sub
+Else
+Call Metric_Calculations(colcalc1, colcalc2)
+End If
+
+
+End Sub
+
+
+Sub Metric_Calculations(ByVal colcalc1 As Integer, ByVal colcalc2 As Integer)
+Application.ScreenUpdating = False
+
+Const sh As String = "MarketCaps"
+Dim DateRange As Range
+Dim Data1 As Range
+Dim Data2 As Range
+Dim Row1 As String 'Mark the Dates
+
+
+Sheets(sh).Activate
+Row1 = ThisWorkbook.Sheets(sh).Cells(1, 1).End(xlDown).Row
+Set DateRange = ThisWorkbook.Sheets(sh).Range(Cells(1, 1), Cells(Row1, 1))
+Set Data1 = ThisWorkbook.Sheets(sh).Range(Cells(1, colcalc1), Cells(Row1, colcalc1))
+Set Data2 = ThisWorkbook.Sheets(sh).Range(Cells(1, colcalc2), Cells(Row1, colcalc2))
+
+On Error Resume Next
+Application.DisplayAlerts = False
+Application.ThisWorkbook.Sheets("Beta_Calculations").Delete
+Application.ThisWorkbook.Sheets.Add
+Application.ThisWorkbook.ActiveSheet.Name = "Beta_Calculations"
+DateRange.Copy (ThisWorkbook.Sheets("Beta_Calculations").Cells(1, 1))
+Data1.Copy (ThisWorkbook.Sheets("Beta_Calculations").Cells(1, 2))
+Data2.Copy (ThisWorkbook.Sheets("Beta_Calculations").Cells(1, 3))
+ThisWorkbook.ActiveSheet.Columns.AutoFit
+Set DataRange = Nothing
+Set Data1 = Nothing
+Set Data2 = Nothing
+Dim Lastrw1 As Integer
+Dim Lastrw2 As Integer
+Lastrw1 = Cells(1, 2).End(xlDown).Row
+Lastrw2 = Cells(1, 3).End(xlDown).Row
+Call LN_change(Lastrw1, Lastrw2)
+
+End Sub
+
+Sub LN_change(Lastrw1 As Integer, Lastrw2 As Integer)
+Dim name1 As String
+Dim name2 As String
+
+name1 = Cells(1, 2).Value + " (LN % Change)"
+name2 = Cells(1, 3).Value + " (LN % Change)"
+
+
+ThisWorkbook.ActiveSheet.Cells(1, 4).EntireColumn.Insert (xlshiftright)
+Cells(1, 4) = name2
+ThisWorkbook.ActiveSheet.Cells(1, 3).EntireColumn.Insert (xlshiftright)
+Cells(1, 3) = name1
+
+Cells(2, 3).Select
+    With Selection
+    .FormulaR1C1 = "=LN(RC[-1]/R[1]C[-1])"
+    .Style = "Percent"
+    .NumberFormat = "0.00%"
+    .Font.ColorIndex = 1
+    End With
+Range(Cells(2, 3), Cells(Lastrw1, 3)).FillDown
+
+Cells(2, 5).Select
+    With Selection
+    .FormulaR1C1 = "=LN(RC[-1]/R[1]C[-1])"
+    .Style = "Percent"
+    .NumberFormat = "0.00%"
+    .Font.ColorIndex = 1
+    End With
+Range(Cells(2, 5), Cells(Lastrw2, 5)).FillDown
+ThisWorkbook.ActiveSheet.Columns.AutoFit
+
+name1 = Cells(1, 2).Value
+name2 = Cells(1, 4).Value
+
+On Error Resume Next
+Rwind = InputBox("What time period rolling window do you want? insert value (ex: 20)") - 1
+Debug.Print Rwind
+If Rwind < 1 Then
+MsgBox "Must enter number"
+Exit Sub
+Else
+Call StatCalcs(Lastrw1, Lastrw2, Rwind, name1, name2)
+End If
+
+
+
+End Sub
+
+Sub StatCalcs(ByVal Lastrw1 As Integer, ByVal Lastrw2 As Integer, ByVal Rwind As Integer, ByVal name1 As String, ByVal name2 As String) 'PASS name1 and name2 & lastRW1 & lastRW2 arguments in order to know which vol window we are looking at
+
+
+
+ThisWorkbook.ActiveSheet.Cells(1, 6) = "Vol " & name1
+ThisWorkbook.ActiveSheet.Cells(1, 7) = "Vol " & name2
+ThisWorkbook.ActiveSheet.Cells(1, 8) = "Covariance " & (Rwind + 1)
+ThisWorkbook.ActiveSheet.Cells(1, 9) = "Correlation " & (Rwind + 1)
+ThisWorkbook.ActiveSheet.Cells(1, 10) = "Beta " & (Rwind + 1)
+ThisWorkbook.ActiveSheet.Cells(1, 11) = "Relvative Value"
+
+Cells(2, 6).FormulaR1C1 = "=STDEV.S(RC[-3]:R[" & Rwind & "]C[-3])*sqrt(365)"
+Range(Cells(2, 6), Cells(Lastrw1, 6)).FillDown
+Cells(2, 7).FormulaR1C1 = "=STDEV.S(RC[-2]:R[" & Rwind & "]C[-2])*sqrt(365)"
+Range(Cells(2, 7), Cells(Lastrw2, 7)).FillDown
+Cells(2, 8).FormulaR1C1 = "=COVARIANCE.S(RC[-5]:R[" & Rwind & "]C[-5],RC[-3]:R[" & Rwind & "]C[-3])"
+Range(Cells(2, 8), Cells(Lastrw2, 8)).FillDown
+Cells(2, 9).FormulaR1C1 = "=CORREL(RC[-6]:R[" & Rwind & "]C[-6],RC[-4]:R[" & Rwind & "]C[-4])"
+Range(Cells(2, 9), Cells(Lastrw2, 9)).FillDown
+Cells(2, 10).FormulaR1C1 = "=(rC[-2])/(var.s(R[" & Rwind & "]c[-7]:rC[-7]))"
+Range(Cells(2, 10), Cells(Lastrw2, 10)).FillDown
+Cells(2, 11).FormulaR1C1 = "=(rC[-9]/rc[-7])"
+Range(Cells(2, 11), Cells(Lastrw2, 11)).FillDown
+
+With Range(Cells(2, 6), Cells(2, 11)).EntireColumn
+    .Style = "Percent"
+    .NumberFormat = "0.00%"
+End With
+ActiveSheet.Columns.AutoFit
+ActiveSheet.Cells.Interior.Color = xlNone
+
+
+With Cells(1, 1).EntireRow
+.Font.Bold = True
+.Font.Underline = xlNone
+.Font.Underline = xlDouble
+.Borders.LineStyle = xlNone
+End With
+
+sRW = 2
+Call Create_Charts(sRW, Lastrw2, Lastrw1)
+
+
+End Sub
+
+
+
+Sub Create_Charts(ByVal sRW As Integer, Lastrw2 As Integer, Lastrw1 As Integer)
+Application.ScreenUpdating = False
+
+
+name1 = ThisWorkbook.Worksheets("Beta_Calculations").Cells(1, 2).Value
+name2 = ThisWorkbook.Worksheets("Beta_Calculations").Cells(1, 4).Value
+
+
+Dim DateR As Range
+Dim Vol1 As Range
+Dim Vol2 As Range
+Dim Corr As Range
+Dim Beta As Range
+Dim RV As Range
+
+If Lastrw1 >= Lastrw2 Then
+Set DateR = Range(Cells(sRW, 1), Cells(Lastrw2, 1))
+Set Vol1 = Range(Cells(sRW, 6), Cells(Lastrw2, 6))
+Set Vol2 = Range(Cells(sRW, 7), Cells(Lastrw2, 7))
+Set Corr = Range(Cells(sRW, 9), Cells(Lastrw2, 9))
+Set Beta = Range(Cells(sRW, 10), Cells(Lastrw2, 10))
+Set RV = Range(Cells(sRW, 11), Cells(Lastrw2, 11))
+LAST = Lastrw2
+Else
+Set DateR = Range(Cells(sRW, 1), Cells(Lastrw1, 1))
+Set Vol1 = Range(Cells(sRW, 6), Cells(Lastrw1, 6))
+Set Vol2 = Range(Cells(sRW, 7), Cells(Lastrw1, 7))
+Set Corr = Range(Cells(sRW, 9), Cells(Lastrw1, 9))
+Set Beta = Range(Cells(sRW, 10), Cells(Lastrw1, 10))
+Set RV = Range(Cells(sRW, 11), Cells(Lastrw1, 11))
+LAST = Lastrw1
+
+End If
+
+On Error Resume Next
+Call Deleteshapes
+
+
+With ThisWorkbook.Sheets("Beta_Calculations").Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(Vol1, Vol2, DateR)
+.HasTitle = True
+.ChartType = xlLine
+.ChartColor = 2
+.ChartStyle = 233
+.HasLegend = True
+.ChartTitle.Caption = "Annualized: " & Range("f1").Value & " & " & Range("g1").Value
+.Parent.Height = 400
+.Parent.Width = 550
+.Parent.Top = 14
+.Parent.Left = 710
+.HasSeriesLines = ture
+.SeriesCollection(1).Name = Range("f1").Value
+.SeriesCollection(2).Name = Range("g1").Value
+
+End With
+
+With ThisWorkbook.Sheets("Beta_Calculations").Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(Corr, DateR)
+.HasTitle = True
+.ChartType = xlLine
+.ChartColor = 2
+.ChartStyle = 233
+.HasLegend = True
+.ChartTitle.Caption = Range("i1").Value
+.Parent.Height = 400
+.Parent.Width = 550
+.Parent.Top = 850
+.Parent.Left = 710
+.HasSeriesLines = ture
+.SeriesCollection(1).Name = Range("i1").Value
+
+
+End With
+With ThisWorkbook.Sheets("Beta_Calculations").Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(Beta, DateR)
+.HasTitle = True
+.ChartType = xlLine
+.ChartColor = 2
+.ChartStyle = 233
+.HasLegend = True
+.ChartTitle.Caption = Range("j1").Value & " " & name2 & " beta in terms of " & name1
+.Parent.Height = 400
+.Parent.Width = 550
+.Parent.Top = 430
+.Parent.Left = 710
+.HasSeriesLines = ture
+.SeriesCollection(1).Name = Range("j1").Value
+
+
+End With
+
+With ThisWorkbook.Sheets("Beta_Calculations").Shapes.AddChart2.Chart
+.SetSourceData Source:=Union(RV, DateR)
+.HasTitle = True
+.ChartType = xlLine
+.ChartColor = 2
+.ChartStyle = 233
+.HasLegend = True
+.ChartTitle.Caption = Range("k1").Value & " " & name1 & " over " & name2
+.Parent.Height = 400
+.Parent.Width = 550
+.Parent.Top = 1280
+.Parent.Left = 710
+.HasSeriesLines = ture
+.SeriesCollection(1).Name = Range("k1").Value
+
+
+End With
+
+Call Chart_Adjust.Show
+
+
+
+
+End Sub
+
+Sub Deleteshapes()
+Dim shp As Shape
+
+For Each shp In ThisWorkbook.Worksheets("Beta_Calculations").Shapes
+shp.Delete
+Next shp
+
+End Sub
+
+
+
+
+REM USERFORM HERE
+'
+'Private Sub cmdApply_Click()
+'
+'sRW = txtStart.Value
+'Lastrw2 = txtEnd.Value
+'Lastrw1 = Lastrw2
+'
+'Call Create_Charts(sRW, Lastrw2, Lastrw1)
+'
+'
+'End Sub
+'
+'Private Sub UserForm_Initialize()
+'Me.Caption = "Chart Zoom: Adjust the Start & End"
+'
+'With txtStart
+'.Text = sRW
+'.Font.Bold = True
+'.Font.Size = 25
+'.TextAlign = fmTextAlignCenter
+'
+'End With
+'
+'With txtEnd
+'.Text = LAST
+'.Font.Bold = True
+'.Font.Size = 25
+'.TextAlign = fmTextAlignCenter
+'End With
+'
+'cmdApply.Caption = "Apply Changes"
+'
+'Me.StartUpPosition = 0
+'Me.Top = Application.Top + 350
+'Me.Left = 350
+'
+'
+'
+'
+'End Sub
