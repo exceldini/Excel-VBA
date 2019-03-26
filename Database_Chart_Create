@@ -4,8 +4,9 @@ Public sRW As Integer
 Dim colcalc1 As Integer
 Dim colcalc2 As Integer
 Public LAST As Integer
-
-Dim Rwind As Integer
+Public Rwind As Integer
+Public name1 As String
+Public name2 As String
 
 Sub Columns_ID()
 ThisWorkbook.Worksheets("MarketCaps").Activate
@@ -67,8 +68,7 @@ Call LN_change(Lastrw1, Lastrw2)
 End Sub
 
 Sub LN_change(Lastrw1 As Integer, Lastrw2 As Integer)
-Dim name1 As String
-Dim name2 As String
+
 
 name1 = Cells(1, 2).Value + " (LN % Change)"
 name2 = Cells(1, 3).Value + " (LN % Change)"
@@ -103,7 +103,6 @@ name2 = Cells(1, 4).Value
 
 On Error Resume Next
 Rwind = InputBox("What time period rolling window do you want? insert value (ex: 20)") - 1
-Debug.Print Rwind
 If Rwind < 1 Then
 MsgBox "Must enter number"
 Exit Sub
@@ -212,7 +211,7 @@ With ThisWorkbook.Sheets("Beta_Calculations").Shapes.AddChart2.Chart
 .Parent.Width = 550
 .Parent.Top = 14
 .Parent.Left = 710
-.HasSeriesLines = ture
+.HasSeriesLines = True
 .SeriesCollection(1).Name = Range("f1").Value
 .SeriesCollection(2).Name = Range("g1").Value
 
@@ -290,44 +289,72 @@ End Sub
 
 
 
-REM USERFORM HERE
-'
-'Private Sub cmdApply_Click()
-'
-'sRW = txtStart.Value
-'Lastrw2 = txtEnd.Value
-'Lastrw1 = Lastrw2
-'
-'Call Create_Charts(sRW, Lastrw2, Lastrw1)
-'
-'
-'End Sub
-'
-'Private Sub UserForm_Initialize()
-'Me.Caption = "Chart Zoom: Adjust the Start & End"
-'
-'With txtStart
-'.Text = sRW
-'.Font.Bold = True
-'.Font.Size = 25
-'.TextAlign = fmTextAlignCenter
-'
-'End With
-'
-'With txtEnd
-'.Text = LAST
-'.Font.Bold = True
-'.Font.Size = 25
-'.TextAlign = fmTextAlignCenter
-'End With
-'
-'cmdApply.Caption = "Apply Changes"
-'
-'Me.StartUpPosition = 0
-'Me.Top = Application.Top + 350
-'Me.Left = 350
-'
-'
-'
-'
-'End Sub
+
+'THIS IS THE USERFORM Below
+
+
+
+
+
+
+
+Private Sub cmdApply_Click()
+
+sRW = txtStart.Value
+Lastrw2 = txtEnd.Value
+Lastrw1 = Lastrw2
+Rwind = txtWind.Value - 1
+
+
+Call StatCalcs(Lastrw1, Lastrw2, Rwind, name1, name2)
+
+
+End Sub
+
+Private Sub txtWind_Change()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+Me.Caption = "Chart Zoom: Adjust the Start & End"
+
+With txtStart
+.Text = sRW
+.Font.Bold = True
+.Font.Size = 25
+.TextAlign = fmTextAlignCenter
+
+End With
+
+With txtEnd
+.Text = LAST
+.Font.Bold = True
+.Font.Size = 25
+.TextAlign = fmTextAlignCenter
+
+End With
+
+With txtWind
+.Text = Rwind + 1
+.Font.Bold = True
+.Font.Size = 25
+.TextAlign = fmTextAlignCenter
+End With
+
+cmdApply.Caption = "Apply Changes for" & vbCrLf & name1 & " " & name2
+
+
+Me.StartUpPosition = 0
+Me.Top = Application.Top + 350
+Me.Left = 350
+
+
+
+
+End Sub
+
+
+
+
+
+
