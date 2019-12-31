@@ -1,0 +1,121 @@
+
+Sub Organize()
+'
+' Organize
+
+    Dim RowNumber As Integer
+    
+    RowNumber = Range("a1").End(xlDown).Row
+Debug.Print (RowNumber)
+
+    Range("A1:B1").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Clear
+    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Add2 Key:= _
+        Range("A2:A" & RowNumber), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption _
+        :=xlSortNormal
+    With ActiveWorkbook.Worksheets("Emotion & Psychology").Sort
+        .SetRange Range("A1:b" & RowNumber)
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+
+
+
+Rem: Conditional Formating
+
+    Range("A1:A" & RowNumber).Select
+    
+    Range("A" & RowNumber).Activate
+    Selection.FormatConditions.AddColorScale ColorScaleType:=3
+    Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
+    Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
+        xlConditionValueLowestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+        .Color = 7039480
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Type = _
+        xlConditionValuePercentile
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+        .Color = 16776444
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(3).Type = _
+        xlConditionValueHighestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
+        .Color = 8109667
+        .TintAndShade = 0
+    End With
+    
+    
+
+
+    Dim RowNumber2 As Integer
+    Dim RowNumber3 As Integer
+    
+    Range("a10000").End(xlUp).Select
+    
+    
+    RowNumber2 = Selection.Row 'note: this is the most bottom row'
+    
+    
+    
+    Debug.Print RowNumber2
+    
+    
+    RowNumber3 = Selection.End(xlUp).Row
+    Debug.Print RowNumber3
+    
+
+
+
+    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Clear
+    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Add2 Key:= _
+        Range("A" & RowNumber2 & ":A" & RowNumber3), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption _
+        :=xlSortNormal
+    With ActiveWorkbook.Worksheets("Emotion & Psychology").Sort
+        .SetRange Range("A" & RowNumber2 & ":B" & RowNumber3)
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+Rem: Conditional Formating
+
+    Range("A" & RowNumber2 & ":A" & RowNumber3).Select
+    
+    Range("A" & RowNumber2).Activate
+    Selection.FormatConditions.AddColorScale ColorScaleType:=3
+    Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
+    Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
+        xlConditionValueLowestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+        .Color = 7039480
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Type = _
+        xlConditionValuePercentile
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+        .Color = 16776444
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(3).Type = _
+        xlConditionValueHighestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
+        .Color = 8109667
+        .TintAndShade = 0
+    End With
+    
+  Cells(1, 1).Select
+  
+    
+End Sub
+
