@@ -65,27 +65,10 @@ Rem: Conditional Formating
     
     
     
-    Debug.Print RowNumber2
-    
     
     RowNumber3 = Selection.End(xlUp).Row
-    Debug.Print RowNumber3
     
 
-
-
-    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Clear
-    ThisWorkbook.Worksheets("Emotion & Psychology").Sort.SortFields.Add2 Key:= _
-        Range("A" & RowNumber2 & ":A" & RowNumber3), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption _
-        :=xlSortNormal
-    With ActiveWorkbook.Worksheets("Emotion & Psychology").Sort
-        .SetRange Range("A" & RowNumber2 & ":B" & RowNumber3)
-        .Header = xlYes
-        .MatchCase = False
-        .Orientation = xlTopToBottom
-        .SortMethod = xlPinYin
-        .Apply
-    End With
     
 Rem: Conditional Formating
 
